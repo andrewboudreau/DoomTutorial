@@ -1,8 +1,6 @@
 ﻿using BonEngineSharp;
-using BonEngineSharp.Assets;
 using BonEngineSharp.Defs;
 using BonEngineSharp.Framework;
-using BonEngineSharp.Managers;
 
 using DoomTutorial;
 
@@ -30,7 +28,7 @@ class DoomScene : Scene
     private GameState gameState;
     private Player player;
 
-    private List<Sector> sectorQueue = new(50);
+    private readonly List<Sector> sectorQueue = new(50);
 
     public override string SceneName => "Doom Tutorial";
 
@@ -309,6 +307,7 @@ class DoomScene : Scene
         Gfx.DrawRectangle(new RectangleI(50, 50, 25, 25), Color.Red, true);
         RenderSectors(player, gameState);
     }
+
     private void RenderSectors(Player player, GameState gameState)
     {
         float screenHalfWidth = ScreenWidth / 2;
