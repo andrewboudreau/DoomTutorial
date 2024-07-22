@@ -490,7 +490,6 @@ class DoomScene : Scene
         var tColor = Color.FromBytes(r, g, b);
         Gfx.DrawLine(new PointI(x0, y0), new PointI(x1, y1), tColor, BlendModes.Opaque);
     }
-
     private void R_Rasterize(Quad q, uint color, int ceil_floor_wall, PlaneLookUpTable? xy_lut)
     {
         // if back-facing wall then do not rasterize
@@ -501,7 +500,7 @@ class DoomScene : Scene
 
         if ((ceil_floor_wall != IS_WALL) && q.ax > q.bx)
         {
-            R_SwapQuadPoints(q);
+            R_SwapQuadPoints(ref q);
             is_back_wall = true;
         }
 
@@ -585,7 +584,7 @@ class DoomScene : Scene
         return (delta_height, delta_elevation);
     }
 
-    private void R_SwapQuadPoints(Quad q)
+    private void R_SwapQuadPoints(ref Quad q)
     {
         (q.ax, q.bx) = (q.bx, q.ax);
         (q.at, q.bt) = (q.bt, q.at);
