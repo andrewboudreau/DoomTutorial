@@ -1,5 +1,5 @@
 # DoomTutorial
-The C# Version
+The C# Version ported to BonEngine and SDL2, from jeuxdemains simple raster engine.
 ![a screenshot](screenshot.png)
 
 This is a simple implementation of a Doom style engine.
