@@ -252,6 +252,11 @@ class DoomScene : Scene
     {
         var fDeltaTime = (float)deltaTime;
 
+        if(Input.PressedNow(KeyCodes.KeyT))
+        {
+            gameState.IsDebugMode = !gameState.IsDebugMode;
+        }
+
         if (Input.Down(KeyCodes.KeyW))
         {
             player.Position = player.Position.AddSelf(
@@ -297,10 +302,6 @@ class DoomScene : Scene
         }
     }
 
-    protected override void Update(double deltaTime)
-    {
-    }
-
     // called every frame to draw scene
     protected override void Draw()
     {
@@ -308,7 +309,6 @@ class DoomScene : Scene
         Gfx.DrawRectangle(new RectangleI(50, 50, 25, 25), Color.Red, true);
         RenderSectors(player, gameState);
     }
-
     private void RenderSectors(Player player, GameState gameState)
     {
         float screenHalfWidth = ScreenWidth / 2;
@@ -326,7 +326,8 @@ class DoomScene : Scene
             int sector_e = s.Elevation;
             uint sector_clr = s.WallColor;
 
-            for (int j = 0; j < 1024; j++)
+            // Initialize lookup tables
+            for (int j = 0; j < ScreenWidth; j++)
             {
                 s.CeilingXYLookUpTable.T[j] = 0;
                 s.CeilingXYLookUpTable.B[j] = 0;
@@ -338,7 +339,7 @@ class DoomScene : Scene
                 s.PortalsFloorXYLookUpTable.B[j] = 0;
             }
 
-            //loop walls
+            // Loop walls
             for (int k = 0; k < s.NumberOfWalls; k++)
             {
                 var w = s.Walls[k];
@@ -382,7 +383,7 @@ class DoomScene : Scene
                 sy1 -= s_level1;
                 sy2 -= s_level2;
 
-                //construct portal top and bottom
+                // construct portal top and bottom
                 float pbh1 = 0;
                 float pbh2 = 0;
                 float pth1 = 0;
@@ -401,20 +402,23 @@ class DoomScene : Scene
                 sx2 += screenHalfWidth;
                 sy2 += screenHalfHeight;
 
-                // // top
-                // R_DrawLine(sx1, sy1 - wh1, sx2, sy2 - wh2, wallColor);
-                // // bottom
-                // R_DrawLine(sx1, sy1, sx2, sy2, wallColor);
-                // // left edge
-                // R_DrawLine(sx1, sy1 - wh1, sx1, sy1, wallColor);
-                // // right edge
-                // R_DrawLine(sx2, sy2 - wh2, sx2, sy2, wallColor);
+                if (gameState.IsDebugMode)
+                {
+                    // top
+                    R_DrawLine(sx1, sy1 - wh1, sx2, sy2 - wh2, 0xFFFFFF);
+                    // bottom
+                    R_DrawLine(sx1, sy1, sx2, sy2, 0xFFFFFF);
+                    // left edge
+                    R_DrawLine(sx1, sy1 - wh1, sx1, sy1, 0xFFFFFF);
+                    // right edge
+                    R_DrawLine(sx2, sy2 - wh2, sx2, sy2, 0xFFFFFF);
 
-                //if (w.IsPortal)
-                //{
-                //    R_DrawLine(sx1, sy1 - wh1 + pth1, sx2, sy2 - wh2 + pth2, wallColor);
-                //    R_DrawLine(sx1, sy1 - pbh1, sx2, sy2 - pbh2, wallColor);
-                //}
+                    if (w.IsPortal)
+                    {
+                        R_DrawLine(sx1, sy1 - wh1 + pth1, sx2, sy2 - wh2 + pth2, 0xFFFFFF);
+                        R_DrawLine(sx1, sy1 - pbh1, sx2, sy2 - pbh2, 0xFFFFFF);
+                    }
+                }
 
                 if (w.IsPortal)
                 {
@@ -441,7 +445,7 @@ class DoomScene : Scene
             }
 
             // rasterize sector's ceil & floor
-            for (int x = 0; x < 1024; x++)
+            for (int x = 0; x < ScreenWidth; x++)
             {
                 // walls
                 int cy1 = s.CeilingXYLookUpTable.T[x];
@@ -490,6 +494,12 @@ class DoomScene : Scene
         var tColor = Color.FromBytes(r, g, b);
         Gfx.DrawLine(new PointI(x0, y0), new PointI(x1, y1), tColor, BlendModes.Opaque);
     }
+
+    private void R_DrawLine(float x0, float y0, float x1, float y1, uint color)
+    {
+        R_DrawLine((int)x0, (int)y0, (int)x1, (int)y1, color);
+    }
+
     private void R_Rasterize(Quad q, uint color, int ceil_floor_wall, PlaneLookUpTable? xy_lut)
     {
         // if back-facing wall then do not rasterize
